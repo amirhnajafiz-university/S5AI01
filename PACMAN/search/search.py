@@ -88,7 +88,7 @@ def depthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
 
-    fringe = util.Stack() # Our fringe for extracting nodes
+    fringe = util.Stack() # Our fringe for extracing nodes
     visited = [] # We are going to use the Graph data structure 
     actions = [] # We need to have a path to return
     path = util.Stack() # For having the current path we are going to use stack
@@ -117,13 +117,13 @@ def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     
-    fringe = util.Queue()
-    visited = []
-    actions = []
-    path = util.Queue()
+    fringe = util.Queue() # Our fringe for extracing nodes
+    visited = [] # Just like DFS we have visitied for graph Data structure
+    actions = [] # Actions that we should return
+    path = util.Queue() # A list for storing all of the actions
 
-    fringe.push(problem.getStartState())
-    current_node = fringe.pop()
+    fringe.push(problem.getStartState()) # Getting the first node to explore
+    current_node = fringe.pop() # A current node setting
 
     while not problem.isGoalState(current_node):
         if current_node not in visited:
