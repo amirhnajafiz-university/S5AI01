@@ -87,7 +87,30 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    fringe = util.Stack() # Our fringe for extracting nodes
+    visited = [] # We are going to use the Graph data structure 
+    actions = [] # We need to have a path to return
+    path = util.Stack() # For having the current path we are going to use stack
+
+    fringe.push(problem.getStartState())
+    current_node = fringe.pop()
+
+    while not problem.isGoalState(current_node):
+        if current_node not in visited:
+            visited.append(current_node)
+            successors = problem.getSuccessors(current_node)
+
+            for successor in successors:
+                fringe.push(successor[0])
+                temp = actions + [successor[1]]
+                path.push(temp)
+        current_node = fringe.pop()
+        actions = path.pop()
+    
+    return actions
+
+    # util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
