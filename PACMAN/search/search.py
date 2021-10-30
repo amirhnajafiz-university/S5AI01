@@ -105,7 +105,7 @@ def depthFirstSearch(problem):
                 fringe.push(successor[0])
                 temp = actions + [successor[1]] # We add a copy of past actions + new action to a temp just to add it to stack
                 path.push(temp)
-                
+
         current_node = fringe.pop()
         actions = path.pop() # This means that we are done with a node and we take out its path to check the goal result
     
@@ -116,7 +116,31 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    fringe = util.Queue()
+    visited = []
+    actions = []
+    path = util.Queue()
+
+    fringe.push(problem.getStartState())
+    current_node = fringe.pop()
+
+    while not problem.isGoalState(current_node):
+        if current_node not in visited:
+            visited.append(current_node)
+            successors = problem.getSuccessors(current_node)
+
+            for successor in successors:
+                fringe.push(successor[0])
+                temp = actions + [successor[1]]
+                path.push(temp)
+
+        current_node = fringe.pop()
+        actions = path.pop()
+
+    return actions
+
+    # util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
