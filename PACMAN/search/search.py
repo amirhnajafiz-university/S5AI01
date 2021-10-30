@@ -93,8 +93,8 @@ def depthFirstSearch(problem):
     actions = [] # We need to have a path to return
     path = util.Stack() # For having the current path we are going to use stack
 
-    fringe.push(problem.getStartState())
-    current_node = fringe.pop()
+    fringe.push(problem.getStartState()) # Getting the first node explored in fringe
+    current_node = fringe.pop() # A current node for locating the current status
 
     while not problem.isGoalState(current_node):
         if current_node not in visited:
@@ -103,10 +103,11 @@ def depthFirstSearch(problem):
 
             for successor in successors:
                 fringe.push(successor[0])
-                temp = actions + [successor[1]]
+                temp = actions + [successor[1]] # We add a copy of past actions + new action to a temp just to add it to stack
                 path.push(temp)
+                
         current_node = fringe.pop()
-        actions = path.pop()
+        actions = path.pop() # This means that we are done with a node and we take out its path to check the goal result
     
     return actions
 
