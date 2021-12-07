@@ -17,6 +17,7 @@ from game import Directions
 import random, util
 
 from game import Agent
+from util import manhattanDistance
 
 
 class ReflexAgent(Agent):
@@ -74,7 +75,65 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # First we check that is successor a win state or not
+        if successorGameState.isWin():
+            return 999999 # Maximum int
+
+        # Finding the manhattan distance to available foods from the successor state
+        foods = newFood.asList()
+        foodDistance = [0]
+        for food in foods:
+            foodDistance.append( manhattanDistance(newPos, food) )
+        
+        # Finding the manhattan distance to each ghost in the game from the successor state
+        ghosts_pos = []
+        for ghost in newGhostStates:
+            ghosts_pos.append( ghost.getPosition() )
+        
+        ghosts = []
+        for ghost in ghosts_pos:
+            ghosts.append( manhattanDistance(newPos, ghost) )
+        
+        # Finding the manhattan distance of each ghost in the game from the current state
+        ghosts_pos_current = []
+        for ghost in currentGameState.getGhostStates():
+            ghosts_pos_current.append( ghost.getPosition() )
+        
+        ghosts_current = []
+        for ghost in ghosts_pos_current:
+            ghosts_current.append( manhattanDistance(newPos, ghost) )
+
+        
+        score = 0
+        numberOfFoodLeft = len(foods)
+        numberOfFoodLeftCurrent = len(currentGameState.getFood().asList())
+        numberOfPowerPellets = len(successorGameState.getCapsules())
+        sumScaredTimes = sum(newScaredTimes)
+
+        score += successorGameState.getScore() - currentGameState.getScore()
+        if action == Directions.STOP:
+            score -= 10
+        
+        if newPos in currentGameState.getCapsules():
+            score += 150 * numberOfPowerPellets
+
+        if numberOfFoodLeft < numberOfFoodLeftCurrent:
+            score += 200 
+        
+        score -= 10 * numberOfFoodLeft
+
+        if sumScaredTimes > 0:
+            if min(ghosts_current) < min(ghosts):
+                score += 200
+            else:
+                score -= 100
+        else:
+            if min(ghosts_current) < min(ghosts):
+                score -= 100
+            else:
+                score += 200
+        
+        return score
 
 
 def scoreEvaluationFunction(currentGameState):
