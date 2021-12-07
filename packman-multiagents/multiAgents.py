@@ -75,62 +75,69 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        # First we check that is successor a win state or not
         if successorGameState.isWin():
-            return 999999 # Maximum int
+            return 999999
 
-        # Finding the manhattan distance to available foods from the successor state
-        foods = newFood.asList()
+        """ Manhattan distance to the available foods from the successor state """
+        foodList = newFood.asList()
+        from util import manhattanDistance
         foodDistance = [0]
-        for food in foods:
-            foodDistance.append( manhattanDistance(newPos, food) )
-        
-        # Finding the manhattan distance to each ghost in the game from the successor state
-        ghosts_pos = []
+        for pos in foodList:
+            foodDistance.append( manhattanDistance(newPos,pos) )
+            
+        """ Manhattan distance to each ghost in the game from successor state"""
+        ghostPos = []
         for ghost in newGhostStates:
-            ghosts_pos.append( ghost.getPosition() )
-        
-        ghosts = []
-        for ghost in ghosts_pos:
-            ghosts.append( manhattanDistance(newPos, ghost) )
-        
-        # Finding the manhattan distance of each ghost in the game from the current state
-        ghosts_pos_current = []
+            ghostPos.append(ghost.getPosition())
+
+        ghostDistance = []
+        for pos in ghostPos:
+            ghostDistance.append(manhattanDistance(newPos,pos))
+
+        """ Manhattan distance to each ghost in the game from current state"""
+        ghostPosCurrent = []
         for ghost in currentGameState.getGhostStates():
-            ghosts_pos_current.append( ghost.getPosition() )
-        
-        ghosts_current = []
-        for ghost in ghosts_pos_current:
-            ghosts_current.append( manhattanDistance(newPos, ghost) )
+            ghostPosCurrent.append(ghost.getPosition())
 
-        
+        ghostDistanceCurrent = []
+        for pos in ghostPosCurrent:
+            ghostDistanceCurrent.append(manhattanDistance(newPos,pos))
+
         score = 0
-        numberOfFoodLeft = len(foods)
+        # Get Number of food available in successor state
+        numberOfFoodLeft = len(foodList)
+        # Get Number of food available in current state
         numberOfFoodLeftCurrent = len(currentGameState.getFood().asList())
-        numberOfPowerPellets = len(successorGameState.getCapsules())
+        # Get Number of Power Pellets available in successor state
+        numberofPowerPellets = len(successorGameState.getCapsules())
+        # Get state of ghosts in successor state
         sumScaredTimes = sum(newScaredTimes)
-
-        # Relative scores
+            
+        #Relative Score    
         score += successorGameState.getScore() - currentGameState.getScore()
         if action == Directions.STOP:
-            score -= 10 # -10 points for waiting
-        
+            #Penalty for stop
+            score -= 10
+            
+        # Add Score if pacman eats power pellet in next state.
         if newPos in currentGameState.getCapsules():
-            score += 150 * numberOfPowerPellets # Add point for capsules
-
+            score += 150 * numberofPowerPellets
+        # Add score if there are lesser number of food available in successor state.
         if numberOfFoodLeft < numberOfFoodLeftCurrent:
-            score += 200 # Add point if less food is remaining the successor state
-        
-        score -= 10 * numberOfFoodLeft # For each food give a -10 point
+            score += 200
 
-        # If we ate capsules then we should get closer to ghosts
-        if sumScaredTimes > 0:
-            if min(ghosts_current) < min(ghosts):
+        # For each food left subtract 10 score.     
+        score -= 10 * numberOfFoodLeft
+
+        # If ghosts are scared lesser distance to ghosts is better.
+        if sumScaredTimes > 0 :
+            if min(ghostDistanceCurrent) < min(ghostDistance):
                 score += 200
             else:
-                score -= 100
-        else: # If not we should keep away
-            if min(ghosts_current) < min(ghosts):
+                score -=100
+        # If ghosts are not scared greater distance to ghosts is better.
+        else:
+            if min(ghostDistanceCurrent) < min(ghostDistance):
                 score -= 100
             else:
                 score += 200
