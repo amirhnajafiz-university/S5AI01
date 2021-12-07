@@ -110,24 +110,26 @@ class ReflexAgent(Agent):
         numberOfPowerPellets = len(successorGameState.getCapsules())
         sumScaredTimes = sum(newScaredTimes)
 
+        # Relative scores
         score += successorGameState.getScore() - currentGameState.getScore()
         if action == Directions.STOP:
-            score -= 10
+            score -= 10 # -10 points for waiting
         
         if newPos in currentGameState.getCapsules():
-            score += 150 * numberOfPowerPellets
+            score += 150 * numberOfPowerPellets # Add point for capsules
 
         if numberOfFoodLeft < numberOfFoodLeftCurrent:
-            score += 200 
+            score += 200 # Add point if less food is remaining the successor state
         
-        score -= 10 * numberOfFoodLeft
+        score -= 10 * numberOfFoodLeft # For each food give a -10 point
 
+        # If we ate capsules then we should get closer to ghosts
         if sumScaredTimes > 0:
             if min(ghosts_current) < min(ghosts):
                 score += 200
             else:
                 score -= 100
-        else:
+        else: # If not we should keep away
             if min(ghosts_current) < min(ghosts):
                 score -= 100
             else:
