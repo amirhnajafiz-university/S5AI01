@@ -199,7 +199,45 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        numberOfGhosts = gameState.getNumAgents() - 1
+
+        def maxLevel(gameState,depth):
+            currDepth = depth + 1
+            if gameState.isWin() or gameState.isLose() or currDepth==self.depth:   #Terminal Test 
+                return self.evaluationFunction(gameState)
+            maxvalue = -999999
+            actions = gameState.getLegalActions(0)
+            for action in actions:
+                successor= gameState.generateSuccessor(0,action)
+                maxvalue = max (maxvalue,minLevel(successor,currDepth,1))
+            return maxvalue
+        
+        def minLevel(gameState,depth, agentIndex):
+            minvalue = 999999
+            if gameState.isWin() or gameState.isLose():   #Terminal Test 
+                return self.evaluationFunction(gameState)
+            actions = gameState.getLegalActions(agentIndex)
+            for action in actions:
+                successor= gameState.generateSuccessor(agentIndex,action)
+                if agentIndex == (gameState.getNumAgents() - 1):
+                    minvalue = min (minvalue,maxLevel(successor,depth))
+                else:
+                    minvalue = min(minvalue,minLevel(successor,depth,agentIndex+1))
+            return minvalue
+        
+        actions = gameState.getLegalActions(0)
+        currentScore = -999999
+        returnAction = ''
+        for action in actions:
+            nextState = gameState.generateSuccessor(0,action)
+            # Next level is a min level. Hence calling min for successors of the root.
+            score = minLevel(nextState,0,1)
+            # Choosing the action which is Maximum of the successors.
+            if score > currentScore:
+                returnAction = action
+                currentScore = score
+        return returnAction
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
