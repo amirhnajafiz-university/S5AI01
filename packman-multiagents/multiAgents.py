@@ -250,7 +250,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        
+
         #Used only for pacman agent hence agentindex is always 0.
         def maxLevel(gameState,depth,alpha, beta):
             currDepth = depth + 1
@@ -321,7 +321,52 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #Used only for pacman agent hence agentindex is always 0.
+        def maxLevel(gameState,depth):
+            currDepth = depth + 1
+            if gameState.isWin() or gameState.isLose() or currDepth==self.depth:   #Terminal Test 
+                return self.evaluationFunction(gameState)
+            maxvalue = -999999
+            actions = gameState.getLegalActions(0)
+            totalmaxvalue = 0
+            numberofactions = len(actions)
+            for action in actions:
+                successor= gameState.generateSuccessor(0,action)
+                maxvalue = max (maxvalue,expectLevel(successor,currDepth,1))
+            return maxvalue
+        
+        #For all ghosts.
+        def expectLevel(gameState,depth, agentIndex):
+            if gameState.isWin() or gameState.isLose():   #Terminal Test 
+                return self.evaluationFunction(gameState)
+            actions = gameState.getLegalActions(agentIndex)
+            totalexpectedvalue = 0
+            numberofactions = len(actions)
+            for action in actions:
+                successor= gameState.generateSuccessor(agentIndex,action)
+                if agentIndex == (gameState.getNumAgents() - 1):
+                    expectedvalue = maxLevel(successor,depth)
+                else:
+                    expectedvalue = expectLevel(successor,depth,agentIndex+1)
+                totalexpectedvalue = totalexpectedvalue + expectedvalue
+            if numberofactions == 0:
+                return  0
+            return float(totalexpectedvalue)/float(numberofactions)
+        
+        #Root level action.
+        actions = gameState.getLegalActions(0)
+        currentScore = -999999
+        returnAction = ''
+        for action in actions:
+            nextState = gameState.generateSuccessor(0,action)
+            # Next level is a expect level. Hence calling expectLevel for successors of the root.
+            score = expectLevel(nextState,0,1)
+            # Choosing the action which is Maximum of the successors.
+            if score > currentScore:
+                returnAction = action
+                currentScore = score
+        return returnAction
+
 
 
 def betterEvaluationFunction(currentGameState):
@@ -332,7 +377,43 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    
+    """ Manhattan distance to the foods from the current state """
+    foodList = newFood.asList()
+    from util import manhattanDistance
+    foodDistance = [0]
+    for pos in foodList:
+        foodDistance.append(manhattanDistance(newPos,pos))
+
+    """ Manhattan distance to each ghost from the current state"""
+    ghostPos = []
+    for ghost in newGhostStates:
+        ghostPos.append(ghost.getPosition())
+    ghostDistance = [0]
+    for pos in ghostPos:
+        ghostDistance.append(manhattanDistance(newPos,pos))
+
+    numberofPowerPellets = len(currentGameState.getCapsules())
+
+    score = 0
+    numberOfNoFoods = len(newFood.asList(False))           
+    sumScaredTimes = sum(newScaredTimes)
+    sumGhostDistance = sum (ghostDistance)
+    reciprocalfoodDistance = 0
+    if sum(foodDistance) > 0:
+        reciprocalfoodDistance = 1.0 / sum(foodDistance)
+        
+    score += currentGameState.getScore()  + reciprocalfoodDistance + numberOfNoFoods
+
+    if sumScaredTimes > 0:    
+        score +=   sumScaredTimes + (-1 * numberofPowerPellets) + (-1 * sumGhostDistance)
+    else :
+        score +=  sumGhostDistance + numberofPowerPellets
+    return score
 
 
 # Abbreviation
