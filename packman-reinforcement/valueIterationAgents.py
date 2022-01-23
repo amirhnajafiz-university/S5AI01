@@ -27,7 +27,7 @@
 
 
 import mdp, util
-
+import sys
 from learningAgents import ValueEstimationAgent
 import collections
 
@@ -94,8 +94,16 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        
-        util.raiseNotDefined()
+        actions = self.mdp.getPossibleActions(state)
+        maxaction = None
+        maxvalue = -sys.maxsize - 1
+
+        for action in actions:
+                value = self.computeQValueFromValues(state, action)
+                if value > maxvalue:
+                    maxvalue = value 
+                    maxaction = action
+        return maxaction
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
