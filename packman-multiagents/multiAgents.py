@@ -420,6 +420,7 @@ def betterEvaluationFunction(currentGameState):
     sumScaredTimes = sum(newScaredTimes)
     sumGhostDistance = sum (ghostDistance)
     reciprocalfoodDistance = 0
+    
     if sum(foodDistance) > 0:
         reciprocalfoodDistance = 1.0 / sum(foodDistance)
         
