@@ -187,4 +187,47 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        # first we create the initialized variables for our algorithm
+        queue = util.PriorityQueue()
+        prede = {}
 
+        # for auto grader, we do the iteration on mdp states
+        # for every non-terminal state we create the predecessors
+        # as the algorithm said
+        for state in self.mdp.getStates():
+            if not self.mdp.isTerminal(state):
+                for action in self.mdp.getPossibleActions(state):
+                    # for every action in our state
+                    for stateProb in self.mdp.getTransitionStatesAndProbs(state, action):
+                        # if we already had it, then we add the state
+                        if stateProb[0] in prede:
+                            prede[stateProb[0]].add(state)
+                        else: # else we just initialize it
+                            prede[stateProb[0]] = {state}
+        
+        # then for every non-terminal state we calculate the diff 
+        for state in self.mdp.getStates():
+            if not self.mdp.isTerminal(state):
+                # as said in the algorithm, we will find the max value of Q-values and will calculate the diff
+                diff = abs(self.values[state] - max([self.computeQValueFromValues(state, action) for action in self.mdp.getPossibleActions(state)]))
+                # then we update the piority queue
+                queue.update(state, -diff)
+        
+        # doing the iteration 
+        for iteration in range(self.iterations):
+            if queue.isEmpty():
+                break
+            # getting the state
+            state = queue.pop()
+            # first we set the init state value
+            if not self.mdp.isTerminal(state):
+                self.values[state] = max([self.computeQValueFromValues(state, action) for action in self.mdp.getPossibleActions(state)])
+            
+            # and for the final step
+            # we calculate the diff again and then we will update the value
+            # if it was more than theta
+            for pred in prede[state]:
+                if not self.mdp.isTerminal(pred):
+                    diff = abs(self.values[pred] - max([self.computeQValueFromValues(pred, action) for action in self.mdp.getPossibleActions(pred)]))
+                    if diff > self.theta:
+                        queue.update(pred, -diff)
